@@ -42,7 +42,7 @@ export const signup: RequestHandler = async (
             process.env.SECRET_KEY!
         );
 
-        res.status(201).json({ email, username, token, id: result.id });
+        res.status(201).json({ email, username, token, userId: result.id });
     } catch (error) {
         console.log(error);
         res.status(404).json({ message: "something went wrong" });
