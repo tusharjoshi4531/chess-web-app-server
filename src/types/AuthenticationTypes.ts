@@ -11,5 +11,8 @@ export interface ILoginRequestBody {
 
 export interface ISignupRequestBody extends IUserData {}
 
+export interface AuthorizedRequest {
+    userData: IUserData;
+}
 
 

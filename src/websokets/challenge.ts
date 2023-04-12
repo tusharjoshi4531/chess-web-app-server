@@ -12,7 +12,7 @@ import {
     IGameFinish,
     IGameState,
     IMoveMade,
-} from "./types";
+} from "../types/websocket";
 
 export const sendChallenge = (data: IChallengeData, io: Server): boolean => {
     if (data.to.includes("@")) data.to = getUsernameFromEmail(data.to);

@@ -35,7 +35,7 @@ export const login: RequestHandler = async (
             {
                 email: existingUser.email,
                 username: existingUser.username,
-                id: existingUser._id,
+                userId: existingUser._id,
             },
             process.env.SECRET_KEY!
         );

@@ -1,4 +1,4 @@
-import { IGameData } from "./types";
+import { IGameData } from "../types/websocket";
 
 export const socketIdToUserId = new Map<
     string,

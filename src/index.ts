@@ -13,7 +13,16 @@ import {
     sendChallenge,
 } from "./websokets/challenge";
 import { connect, debug, disconnect } from "./websokets/connection";
-import { IChallengeData, IGameData, IGameFinish, IMoveMade } from "./websokets/types";
+import {
+    IChallengeData,
+    IGameData,
+    IGameFinish,
+    IMoveMade,
+} from "./types/websocket";
+import { removeOutdatedChallengesFromDatabase } from "./models/challenges/remove-outdated-challenges";
+import OpenChallengeModel from "./models/challenges/openChallenge";
+import { getSocketIdFromUsername } from "./websokets/global";
+import { removeOpenChallengeById } from "./models/challenges/remove-challenge-by-id";
 
 const PORT = process.env.PORT || 3000;
 
@@ -61,6 +70,33 @@ io.on("connection", (socket) => {
         createChallenge(data, io);
     });
 
+    // When player accepts open challeng
+    socket.on(
+        "open-challenge-accepted",
+        async (data: { gameData: IGameData; id: string }, callback) => {
+            try {
+                await removeOutdatedChallengesFromDatabase();
+
+                // Check if players are online and challenge is present in database
+                if (
+                    getSocketIdFromUsername(data.gameData.black) === "" ||
+                    getSocketIdFromUsername(data.gameData.white) === "" ||
+                    !(await OpenChallengeModel.findById(data.id))
+                ) {
+                    if (callback) {
+                        callback(false);
+                    }
+                    return;
+                }
+
+                createChallenge(data.gameData, io);
+                removeOpenChallengeById(data.id);
+            } catch (error) {
+                if (callback) callback(false);
+            }
+        }
+    );
+
     // Check if user is in a room,
     socket.on("check-user-in-game", (data, callback) => {
         callback(findGameStateWithUsername(data.username));
@@ -77,7 +113,7 @@ io.on("connection", (socket) => {
     socket.on("game-finish", (data: IGameFinish) => {
         console.log(data);
         finishGame(data, io);
-    })
+    });
 
     // Disconnect user
     socket.on("disconnect", () => {
